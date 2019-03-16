@@ -2,8 +2,8 @@ server {
   graceful-shutdown = "10s"
 
   action {
-    not-found = "base.NotFound"
-    panic     = "base.Panic"
+    not-found = "pipe.NotFound"
+    panic     = "pipe.Panic"
   }
 
   http {
@@ -14,11 +14,10 @@ server {
 host {
   endpoint = "google"
   origin   = "https://www.google.com"
-  handler  = "base.Default"
+  handler  = "pipe.Default"
 }
 
-handler {
-  path    = "github.com/pipehub/handler"
-  version = "v0.6.0"
-  alias   = "base"
+pipe "github.com/pipehub/pipe" {
+  version = "v0.7.0"
+  alias   = "pipe"
 }

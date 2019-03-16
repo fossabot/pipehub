@@ -63,3 +63,11 @@ docker run --rm -e GOOS=darwin -e GOARCH=amd64 -v $(pwd)/pipehub.hcl:/pipehub.hc
 ```
 
 All the possible `GOOS` and `GOARCH` can be found [here](https://golang.org/doc/install/source#environment).
+
+
+
+
+
+
+---
+remover os hcls dos matchs, não estamos usando eles...

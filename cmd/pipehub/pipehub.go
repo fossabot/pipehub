@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/hcl"
+	"github.com/kr/pretty"
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 
@@ -18,7 +19,7 @@ import (
 
 type config struct {
 	Host    []configHost    `hcl:"host" mapstructure:"host"`
-	Handler []configHandler `hcl:"handler" mapstructure:"handler"`
+	Handler []configHandler `hcl:"pipe" mapstructure:"pipe"`
 	Server  []configServer  `hcl:"server" mapstructure:"server"`
 }
 
@@ -142,11 +143,73 @@ func loadConfig(path string) (config, error) {
 		return config{}, errors.Wrap(err, "unmarshal payload error")
 	}
 
+	pretty.Println(rawCfg["pipe"])
+	hh := loadConfigHandler(rawCfg["pipe"])
+	pretty.Println(hh)
+	// os.Exit(1)
+
 	var cfg config
 	if err := mapstructure.Decode(rawCfg, &cfg); err != nil {
 		return config{}, errors.Wrap(err, "unmarshal error")
 	}
+	cfg.Handler = hh
 	return cfg, nil
+}
+
+// loadConfigHandler expect to receive a interface with this format:
+//
+//	[]map[string]interface {}{
+//		{
+//				"github.com/pipehub/pipe": []map[string]interface {}{
+//						{
+//								"version": "v0.7.0",
+//								"alias":   "pipe",
+//						},
+//				},
+//		},
+//	}
+func loadConfigHandler(raw interface{}) []configHandler {
+	var result []configHandler
+
+	rawSlice, ok := raw.([]map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	for _, rawEntries := range rawSlice {
+		for key, raw2 := range rawEntries {
+			values, ok := raw2.([]map[string]interface{})
+			if !ok {
+				return nil
+			}
+
+			for _, value2 := range values {
+				ch := configHandler{
+					Path: key,
+				}
+
+				for key3, rawValue3 := range value2 {
+					value3, ok := rawValue3.(string)
+					if !ok {
+						return nil
+					}
+
+					switch key3 {
+					case "version":
+						ch.Version = value3
+					case "alias":
+						ch.Alias = value3
+					default:
+						panic("campo não existe...")
+					}
+				}
+
+				result = append(result, ch)
+			}
+		}
+	}
+
+	return result
 }
 
 func fatal(err error) {

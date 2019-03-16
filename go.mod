@@ -5,6 +5,7 @@ require (
 	github.com/go-chi/hostrouter v0.0.0-20180220162504-7bff2694dfd9
 	github.com/hashicorp/hcl v1.0.0
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/kr/pretty v0.1.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/afero v1.2.1
